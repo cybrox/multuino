@@ -207,3 +207,4 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
+

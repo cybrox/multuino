@@ -2,7 +2,7 @@
 //
 // Arduino Micro based software for relaying commands from one remote, received
 // via an IR receiver to either IR devices (via IR transmitter) or computer (via
-// keyboard)yy
+// HID keyboard)
 
 #include <Keyboard.h>
 #include <IRSendRev.h>

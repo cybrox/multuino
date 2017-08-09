@@ -20,24 +20,27 @@
 
 #define BTN_UNKNOWN     0
 #define BTN_ONOFF       1
-#define BTN_SOURCE      2
-#define BTN_UP          3   
-#define BTN_DOWN        4
-#define BTN_LEFT        5
-#define BTN_RIGHT       6
-#define BTN_ENTER       7
-#define BTN_MORE        8
-#define BTN_BACK        9
-#define BTN_VOLUP      10
-#define BTN_VOLDOWN    11
-#define BTN_PLAYPAUSE  12
-#define BTN_SEEKBW     13
-#define BTN_SEEKFW     14
+#define BTN_ONOFF_TV    2
+#define BTN_ONOFF_RCV   3
+#define BTN_UP          4   
+#define BTN_DOWN        5
+#define BTN_LEFT        6
+#define BTN_RIGHT       7
+#define BTN_ENTER       8
+#define BTN_MORE        9
+#define BTN_BACK       10
+#define BTN_VOLUP      11
+#define BTN_VOLDOWN    12
+#define BTN_PLAYPAUSE  13
+#define BTN_SEEKBW     14
+#define BTN_SEEKFW     15
 
-#define IRC_ONOFF       0
-#define IRC_SOURCE      1
-#define IRC_VOLUP       2
-#define IRC_VOLDOWN     3
+#define IRC_ONOFF       1
+#define IRC_ONOFF_TV    2
+#define IRC_ONOFF_RCV   3
+#define IRC_SOURCE      4
+#define IRC_VOLUP       5
+#define IRC_VOLDOWN     6
 
 #define PIN_IR_RX       5
 #define PIN_IR_TX       6  // NOP
@@ -87,8 +90,8 @@ int getPhysicalButton () {
   if (rxBuffer[BIT_DATA_LEN] != 4) return BTN_UNKNOWN;
 
   if (bufferMatches(0x01, 0x1B, 0x26, 0xD9)) return BTN_ONOFF;
-  if (bufferMatches(0x01, 0x1B, 0x76, 0x89)) return BTN_SOURCE;
-  if (bufferMatches(0x01, 0x1B, 0xF6, 0x09)) return BTN_MORE;
+  if (bufferMatches(0x01, 0x1B, 0x76, 0x89)) return BTN_ONOFF_TV;
+  if (bufferMatches(0x01, 0x1B, 0xF6, 0x09)) return BTN_ONOFF_RCV;
   if (bufferMatches(0x01, 0x1B, 0x78, 0x87)) return BTN_UP;
   if (bufferMatches(0x01, 0x1B, 0xF8, 0x07)) return BTN_DOWN;
   if (bufferMatches(0x01, 0x1B, 0x04, 0xFB)) return BTN_LEFT;
@@ -122,7 +125,8 @@ bool bufferMatches(int bit1, int bit2, int bit3, int bit4) {
 bool pressVirtualButton (int button) {
   switch(button) {
     case BTN_ONOFF:     dispatchInfraRed(IRC_ONOFF);          return true;  break;
-    case BTN_SOURCE:    dispatchInfraRed(IRC_SOURCE);         return true;  break;
+    case BTN_ONOFF_TV:  dispatchInfraRed(IRC_ONOFF_TV);       return true;  break;
+    case BTN_ONOFF_RCV: dispatchInfraRed(IRC_ONOFF_RCV);      return true;  break;
     case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         return false; break;
     case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       return false; break;
     case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       return false; break;
@@ -155,9 +159,11 @@ void dispatchInfraRed (int command) {
       sendIrWithParams(samsungTvOnOff);
       delay(50);
     break;
+    case IRC_ONOFF_TV:  sendIrWithParams(samsungTvOnOff);     break;
+    case IRC_ONOFF_RCV: sendIrWithParams(onkyoRcvOnOff);      break;
     case IRC_SOURCE:    /* NOP */                             break;
-    case IRC_VOLUP:   sendIrWithParams(onkyoRcvVolUpR);       break;
-    case IRC_VOLDOWN: sendIrWithParams(onkyoRcvVolDnR);       break;
+    case IRC_VOLUP:     sendIrWithParams(onkyoRcvVolUpR);     break;
+    case IRC_VOLDOWN:   sendIrWithParams(onkyoRcvVolDnR);     break;
   } 
 }
 

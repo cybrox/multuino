@@ -34,6 +34,9 @@
 #define BTN_PLAYPAUSE  13
 #define BTN_SEEKBW     14
 #define BTN_SEEKFW     15
+#define BTN_JMPBW      16
+#define BTN_JMPFW      17
+#define BTN_STOP       18
 
 #define IRC_ONOFF       1
 #define IRC_ONOFF_TV    2
@@ -41,6 +44,10 @@
 #define IRC_SOURCE      4
 #define IRC_VOLUP       5
 #define IRC_VOLDOWN     6
+
+#define KBM_MUSIC       1
+#define KBM_KODI        2
+#define KBM_EMPTY       3
 
 #define PIN_IR_RX       5
 #define PIN_IR_TX       6  // NOP
@@ -104,6 +111,9 @@ int getPhysicalButton () {
   if (bufferMatches(0x01, 0x1B, 0x0E, 0xF1)) return BTN_PLAYPAUSE;
   if (bufferMatches(0x01, 0x1B, 0xA8, 0x57)) return BTN_SEEKBW;
   if (bufferMatches(0x01, 0x1B, 0x28, 0xD7)) return BTN_SEEKFW;
+  if (bufferMatches(0x01, 0x1B, 0xD8, 0x27)) return BTN_JMPBW;
+  if (bufferMatches(0x01, 0x1B, 0x58, 0xA7)) return BTN_JMPFW;
+  if (bufferMatches(0x01, 0x1B, 0x98, 0x67)) return BTN_STOP;
 
   return BTN_UNKNOWN;
 }
@@ -139,7 +149,26 @@ bool pressVirtualButton (int button) {
     case BTN_PLAYPAUSE: Keyboard.write(' ');                  return false; break;
     case BTN_SEEKBW:    Keyboard.write(KEY_LEFT_ARROW);       return false; break;
     case BTN_SEEKFW:    Keyboard.write(KEY_RIGHT_ARROW);      return false; break;
+    case BTN_JMPBW:     dispatchKeyboardModified(KBM_MUSIC);  return false; break;
+    case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   return false; break;
+    case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  return false; break;
   }
+}
+
+
+// Keyboard modify dispatcher
+void dispatchKeyboardModified (int command) {
+  Keyboard.press(KEY_LEFT_GUI);
+  delay(50);
+
+  switch (command) {
+    case KBM_MUSIC:  Keyboard.write('8');                     break;
+    case KBM_KODI:   Keyboard.write('9');                     break;
+    case KBM_EMPTY:  Keyboard.write('d');                     break;
+  }
+
+  delay(50);
+  Keyboard.release(KEY_LEFT_GUI);
 }
 
 
@@ -213,4 +242,6 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
+
+
 

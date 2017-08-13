@@ -132,7 +132,7 @@ bool pressVirtualButton (int button) {
     case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       return false; break;
     case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      return false; break;
     case BTN_ENTER:     Keyboard.write(KEY_RETURN);           return false; break;
-    case BTN_MORE:      Keyboard.write(KEY_TAB);              return false; break;
+    case BTN_MORE:      Keyboard.write('c');                  return false; break;
     case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        return false; break;
     case BTN_VOLUP:     dispatchInfraRed(IRC_VOLUP);          return true;  break;
     case BTN_VOLDOWN:   dispatchInfraRed(IRC_VOLDOWN);        return true;  break;
@@ -213,3 +213,4 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
+

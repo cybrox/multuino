@@ -58,6 +58,7 @@
 
 unsigned char rxBuffer[20];
 unsigned char txBuffer[20];
+int serialRxBuffer;
 
 
 void setup() {
@@ -69,21 +70,31 @@ void setup() {
 
 
 void loop() {
+  int pressedButton;
+
   if(IR.IsDta()) {
     IR.Recv(rxBuffer);
 
     #if DEBUG_MODE == true
       debugIrBuffer();
     #else
-      int pressedButton = getPhysicalButton();
-      if (pressedButton != BTN_UNKNOWN) {
-        bool sentIr = pressVirtualButton(pressedButton);
-        if (sentIr == true) {
-          for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
-          IR.Init(PIN_IR_RX);
-        }
-      }
+      pressedButton = getPhysicalButton();
     #endif
+  }
+
+  if (Serial.available() > 0) {
+    pressedButton = Serial.read();
+  }
+
+  if (pressedButton != BTN_UNKNOWN) {
+  Serial.println(pressedButton);
+    bool sentIr = pressVirtualButton(pressedButton);
+    if (sentIr == true) {
+      for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
+      IR.Init(PIN_IR_RX);
+    }
+
+    pressedButton = BTN_UNKNOWN;
   }
 }
 

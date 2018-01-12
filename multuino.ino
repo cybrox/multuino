@@ -37,6 +37,7 @@
 #define BTN_JMPBW      16
 #define BTN_JMPFW      17
 #define BTN_STOP       18
+#define BTN_MUTE       19
 
 #define IRC_ONOFF       1
 #define IRC_ONOFF_TV    2
@@ -62,10 +63,8 @@ unsigned char txBuffer[20];
 void setup() {
   IR.Init(PIN_IR_RX);
 
-  #if DEBUG_MODE == true
-    Serial.begin(9600);
-    Serial.println("Initialized multuino in debug mode!");
-  #endif
+  Serial.begin(9600);
+  Serial.println("Initialized multuino");
 }
 
 
@@ -114,6 +113,7 @@ int getPhysicalButton () {
   if (bufferMatches(0x01, 0x1B, 0xD8, 0x27)) return BTN_JMPBW;
   if (bufferMatches(0x01, 0x1B, 0x58, 0xA7)) return BTN_JMPFW;
   if (bufferMatches(0x01, 0x1B, 0x98, 0x67)) return BTN_STOP;
+  if (bufferMatches(0x01, 0x1B, 0x70, 0x8F)) return BTN_MUTE;
 
   return BTN_UNKNOWN;
 }
@@ -152,6 +152,7 @@ bool pressVirtualButton (int button) {
     case BTN_JMPBW:     dispatchKeyboardModified(KBM_MUSIC);  return false; break;
     case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   return false; break;
     case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  return false; break;
+    case BTN_MUTE:      Serial.println("Serial Test Data");   return false; break;
   }
 }
 
@@ -242,6 +243,3 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
-
-
-

@@ -38,6 +38,8 @@
 #define BTN_JMPFW      17
 #define BTN_STOP       18
 #define BTN_MUTE       19
+#define ACT_SRC1       51
+#define ACT_SRC2       52
 
 #define IRC_ONOFF       1
 #define IRC_ONOFF_TV    2
@@ -45,6 +47,8 @@
 #define IRC_SOURCE      4
 #define IRC_VOLUP       5
 #define IRC_VOLDOWN     6
+#define IRC_SETSRC1    51
+#define IRC_SETSRC2    52
 
 #define KBM_MUSIC       1
 #define KBM_KODI        2
@@ -158,6 +162,8 @@ void pressVirtualButton (int button) {
     case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   break;
     case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  break;
     case BTN_MUTE:      Serial.println("Serial Test Data");   break;
+    case ACT_SRC1:      dispatchInfraRed(IRC_SETSRC1);        break;
+    case ACT_SRC2:      dispatchInfraRed(IRC_SETSRC2);        break;
   }
 }
 
@@ -183,6 +189,11 @@ void dispatchInfraRed (int command) {
   const int samsungTvOnOff[] = {91,  90, 10, 34, 0xE0, 0xE0, 0x40, 0xBF};
   const int samsungVolUp[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xE0, 0x1F};
   const int samsungVolDn[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xD0, 0x2F};
+  const int samsungBtHome [] = {91,  90, 10 ,34, 0xE0, 0xE0, 0x9E, 0x61};
+  const int samsungBtU []    = {91,  90, 10 ,34, 0xE0, 0xE0, 0x06, 0xF9};
+  const int samsungBtL []    = {91,  90, 10 ,34, 0xE0, 0xE0, 0xA6, 0x59};
+  const int samsungBtR []    = {91,  90, 10 ,34, 0xE0, 0xE0, 0x46, 0xB9};
+  const int samsungBtOk[]    = {91,  90, 10, 34, 0xE0, 0xE0, 0x16, 0xE9};
   const int onkyoRcvOnOff[]  = {180, 88, 11, 33, 0x4B, 0x36, 0xD3, 0x2C};
   const int onkyoRcvVolUpR[] = {180, 88, 11, 33, 0x4B, 0xB6, 0x40, 0xBF};
   const int onkyoRcvVolUpL[] = {180, 88, 11, 33, 0x20, 0xDF, 0x40, 0xBF};
@@ -201,6 +212,25 @@ void dispatchInfraRed (int command) {
     case IRC_SOURCE:    /* NOP */                             break;
     case IRC_VOLUP:     sendIrWithParams(samsungVolUp);       break;
     case IRC_VOLDOWN:   sendIrWithParams(samsungVolDn);       break;
+    case IRC_SETSRC1:
+      sendIrWithParams(samsungBtHome);
+      delay(250);
+      sendIrWithParams(samsungBtU);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtR);
+      delay(160);
+      sendIrWithParams(samsungBtR);
+      delay(160);
+      sendIrWithParams(samsungBtOk);
+    break;
   }
 
   for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
@@ -253,4 +283,5 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
+
 

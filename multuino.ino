@@ -87,12 +87,7 @@ void loop() {
   }
 
   if (pressedButton != BTN_UNKNOWN) {
-    bool sentIr = pressVirtualButton(pressedButton);
-    if (sentIr == true) {
-      for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
-      IR.Init(PIN_IR_RX);
-    }
-
+    pressVirtualButton(pressedButton);
     pressedButton = BTN_UNKNOWN;
   }
 }
@@ -142,27 +137,27 @@ bool bufferMatches(int bit1, int bit2, int bit3, int bit4) {
 
 
 // Virtual Remote representing all buttons
-bool pressVirtualButton (int button) {
+void pressVirtualButton (int button) {
   switch(button) {
-    case BTN_ONOFF:     dispatchInfraRed(IRC_ONOFF);          return true;  break;
-    case BTN_ONOFF_TV:  dispatchInfraRed(IRC_ONOFF_TV);       return true;  break;
-    case BTN_ONOFF_RCV: dispatchInfraRed(IRC_ONOFF_RCV);      return true;  break;
-    case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         return false; break;
-    case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       return false; break;
-    case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       return false; break;
-    case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      return false; break;
-    case BTN_ENTER:     Keyboard.write(KEY_RETURN);           return false; break;
-    case BTN_MORE:      Keyboard.write('c');                  return false; break;
-    case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        return false; break;
-    case BTN_VOLUP:     dispatchInfraRed(IRC_VOLUP);          return true;  break;
-    case BTN_VOLDOWN:   dispatchInfraRed(IRC_VOLDOWN);        return true;  break;
-    case BTN_PLAYPAUSE: Keyboard.write(' ');                  return false; break;
-    case BTN_SEEKBW:    Keyboard.write(KEY_LEFT_ARROW);       return false; break;
-    case BTN_SEEKFW:    Keyboard.write(KEY_RIGHT_ARROW);      return false; break;
-    case BTN_JMPBW:     dispatchKeyboardModified(KBM_MUSIC);  return false; break;
-    case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   return false; break;
-    case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  return false; break;
-    case BTN_MUTE:      Serial.println("Serial Test Data");   return false; break;
+    case BTN_ONOFF:     dispatchInfraRed(IRC_ONOFF);          break;
+    case BTN_ONOFF_TV:  dispatchInfraRed(IRC_ONOFF_TV);       break;
+    case BTN_ONOFF_RCV: dispatchInfraRed(IRC_ONOFF_RCV);      break;
+    case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         break;
+    case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       break;
+    case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       break;
+    case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      break;
+    case BTN_ENTER:     Keyboard.write(KEY_RETURN);           break;
+    case BTN_MORE:      Keyboard.write('c');                  break;
+    case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        break;
+    case BTN_VOLUP:     dispatchInfraRed(IRC_VOLUP);          break;
+    case BTN_VOLDOWN:   dispatchInfraRed(IRC_VOLDOWN);        break;
+    case BTN_PLAYPAUSE: Keyboard.write(' ');                  break;
+    case BTN_SEEKBW:    Keyboard.write(KEY_LEFT_ARROW);       break;
+    case BTN_SEEKFW:    Keyboard.write(KEY_RIGHT_ARROW);      break;
+    case BTN_JMPBW:     dispatchKeyboardModified(KBM_MUSIC);  break;
+    case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   break;
+    case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  break;
+    case BTN_MUTE:      Serial.println("Serial Test Data");   break;
   }
 }
 
@@ -204,7 +199,10 @@ void dispatchInfraRed (int command) {
     case IRC_SOURCE:    /* NOP */                             break;
     case IRC_VOLUP:     sendIrWithParams(onkyoRcvVolUpR);     break;
     case IRC_VOLDOWN:   sendIrWithParams(onkyoRcvVolDnR);     break;
-  } 
+  }
+
+  for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
+  IR.Init(PIN_IR_RX);
 }
 
 
@@ -253,3 +251,4 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
+

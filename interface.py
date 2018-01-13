@@ -55,7 +55,7 @@ class multuinoHttpServer_RequestHandler(BaseHTTPRequestHandler):
 
 # Start HTTP server
 print("Starting Multuino HTTP server on port 8081")
-http_address = ('127.0.0.1', 8081)
+http_address = ('192.168.1.11', 8081)
 http_daemon = HTTPServer(http_address, multuinoHttpServer_RequestHandler)
 http_daemon.serve_forever()
 

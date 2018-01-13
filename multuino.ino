@@ -180,7 +180,9 @@ void dispatchKeyboardModified (int command) {
 
 // Infrared Dispatcher
 void dispatchInfraRed (int command) {
-  const int samsungTvOnOff[] = {91, 90, 10, 34, 0xE0, 0xE0, 0x40, 0xBF};
+  const int samsungTvOnOff[] = {91,  90, 10, 34, 0xE0, 0xE0, 0x40, 0xBF};
+  const int samsungVolUp[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xE0, 0x1F};
+  const int samsungVolDn[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xD0, 0x2F};
   const int onkyoRcvOnOff[]  = {180, 88, 11, 33, 0x4B, 0x36, 0xD3, 0x2C};
   const int onkyoRcvVolUpR[] = {180, 88, 11, 33, 0x4B, 0xB6, 0x40, 0xBF};
   const int onkyoRcvVolUpL[] = {180, 88, 11, 33, 0x20, 0xDF, 0x40, 0xBF};
@@ -197,8 +199,8 @@ void dispatchInfraRed (int command) {
     case IRC_ONOFF_TV:  sendIrWithParams(samsungTvOnOff);     break;
     case IRC_ONOFF_RCV: sendIrWithParams(onkyoRcvOnOff);      break;
     case IRC_SOURCE:    /* NOP */                             break;
-    case IRC_VOLUP:     sendIrWithParams(onkyoRcvVolUpR);     break;
-    case IRC_VOLDOWN:   sendIrWithParams(onkyoRcvVolDnR);     break;
+    case IRC_VOLUP:     sendIrWithParams(samsungVolUp);       break;
+    case IRC_VOLDOWN:   sendIrWithParams(samsungVolDn);       break;
   }
 
   for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;

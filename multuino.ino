@@ -87,7 +87,6 @@ void loop() {
   }
 
   if (pressedButton != BTN_UNKNOWN) {
-  Serial.println(pressedButton);
     bool sentIr = pressVirtualButton(pressedButton);
     if (sentIr == true) {
       for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;

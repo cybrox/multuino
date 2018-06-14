@@ -37,6 +37,9 @@
 #define BTN_JMPBW      16
 #define BTN_JMPFW      17
 #define BTN_STOP       18
+#define BTN_MUTE       19
+#define ACT_SRC1       51
+#define ACT_SRC2       52
 
 #define IRC_ONOFF       1
 #define IRC_ONOFF_TV    2
@@ -44,6 +47,8 @@
 #define IRC_SOURCE      4
 #define IRC_VOLUP       5
 #define IRC_VOLDOWN     6
+#define IRC_SETSRC1    51
+#define IRC_SETSRC2    52
 
 #define KBM_MUSIC       1
 #define KBM_KODI        2
@@ -57,34 +62,37 @@
 
 unsigned char rxBuffer[20];
 unsigned char txBuffer[20];
+int serialRxBuffer;
 
 
 void setup() {
   IR.Init(PIN_IR_RX);
 
-  #if DEBUG_MODE == true
-    Serial.begin(9600);
-    Serial.println("Initialized multuino in debug mode!");
-  #endif
+  Serial.begin(9600);
+  Serial.println("Initialized multuino");
 }
 
 
 void loop() {
+  int pressedButton;
+
   if(IR.IsDta()) {
     IR.Recv(rxBuffer);
 
     #if DEBUG_MODE == true
       debugIrBuffer();
     #else
-      int pressedButton = getPhysicalButton();
-      if (pressedButton != BTN_UNKNOWN) {
-        bool sentIr = pressVirtualButton(pressedButton);
-        if (sentIr == true) {
-          for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
-          IR.Init(PIN_IR_RX);
-        }
-      }
+      pressedButton = getPhysicalButton();
     #endif
+  }
+
+  if (Serial.available() > 0) {
+    pressedButton = Serial.read();
+  }
+
+  if (pressedButton != BTN_UNKNOWN) {
+    pressVirtualButton(pressedButton);
+    pressedButton = BTN_UNKNOWN;
   }
 }
 
@@ -114,6 +122,7 @@ int getPhysicalButton () {
   if (bufferMatches(0x01, 0x1B, 0xD8, 0x27)) return BTN_JMPBW;
   if (bufferMatches(0x01, 0x1B, 0x58, 0xA7)) return BTN_JMPFW;
   if (bufferMatches(0x01, 0x1B, 0x98, 0x67)) return BTN_STOP;
+  if (bufferMatches(0x01, 0x1B, 0x70, 0x8F)) return BTN_MUTE;
 
   return BTN_UNKNOWN;
 }
@@ -132,26 +141,29 @@ bool bufferMatches(int bit1, int bit2, int bit3, int bit4) {
 
 
 // Virtual Remote representing all buttons
-bool pressVirtualButton (int button) {
+void pressVirtualButton (int button) {
   switch(button) {
-    case BTN_ONOFF:     dispatchInfraRed(IRC_ONOFF);          return true;  break;
-    case BTN_ONOFF_TV:  dispatchInfraRed(IRC_ONOFF_TV);       return true;  break;
-    case BTN_ONOFF_RCV: dispatchInfraRed(IRC_ONOFF_RCV);      return true;  break;
-    case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         return false; break;
-    case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       return false; break;
-    case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       return false; break;
-    case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      return false; break;
-    case BTN_ENTER:     Keyboard.write(KEY_RETURN);           return false; break;
-    case BTN_MORE:      Keyboard.write('c');                  return false; break;
-    case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        return false; break;
-    case BTN_VOLUP:     dispatchInfraRed(IRC_VOLUP);          return true;  break;
-    case BTN_VOLDOWN:   dispatchInfraRed(IRC_VOLDOWN);        return true;  break;
-    case BTN_PLAYPAUSE: Keyboard.write(' ');                  return false; break;
-    case BTN_SEEKBW:    Keyboard.write(KEY_LEFT_ARROW);       return false; break;
-    case BTN_SEEKFW:    Keyboard.write(KEY_RIGHT_ARROW);      return false; break;
-    case BTN_JMPBW:     dispatchKeyboardModified(KBM_MUSIC);  return false; break;
-    case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   return false; break;
-    case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  return false; break;
+    case BTN_ONOFF:     dispatchInfraRed(IRC_ONOFF);          break;
+    case BTN_ONOFF_TV:  dispatchInfraRed(IRC_ONOFF_TV);       break;
+    case BTN_ONOFF_RCV: dispatchInfraRed(IRC_ONOFF_RCV);      break;
+    case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         break;
+    case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       break;
+    case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       break;
+    case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      break;
+    case BTN_ENTER:     Keyboard.write(KEY_RETURN);           break;
+    case BTN_MORE:      Keyboard.write('c');                  break;
+    case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        break;
+    case BTN_VOLUP:     dispatchInfraRed(IRC_VOLUP);          break;
+    case BTN_VOLDOWN:   dispatchInfraRed(IRC_VOLDOWN);        break;
+    case BTN_PLAYPAUSE: Keyboard.write(' ');                  break;
+    case BTN_SEEKBW:    Keyboard.write(KEY_LEFT_ARROW);       break;
+    case BTN_SEEKFW:    Keyboard.write(KEY_RIGHT_ARROW);      break;
+    case BTN_JMPBW:     dispatchKeyboardModified(KBM_MUSIC);  break;
+    case BTN_JMPFW:     dispatchKeyboardModified(KBM_KODI);   break;
+    case BTN_STOP:      dispatchKeyboardModified(KBM_EMPTY);  break;
+    case BTN_MUTE:      Serial.println("Serial Test Data");   break;
+    case ACT_SRC1:      dispatchInfraRed(IRC_SETSRC1);        break;
+    case ACT_SRC2:      dispatchInfraRed(IRC_SETSRC2);        break;
   }
 }
 
@@ -174,7 +186,14 @@ void dispatchKeyboardModified (int command) {
 
 // Infrared Dispatcher
 void dispatchInfraRed (int command) {
-  const int samsungTvOnOff[] = {91, 90, 10, 34, 0xE0, 0xE0, 0x40, 0xBF};
+  const int samsungTvOnOff[] = {91,  90, 10, 34, 0xE0, 0xE0, 0x40, 0xBF};
+  const int samsungVolUp[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xE0, 0x1F};
+  const int samsungVolDn[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xD0, 0x2F};
+  const int samsungBtHome [] = {91,  90, 10 ,34, 0xE0, 0xE0, 0x9E, 0x61};
+  const int samsungBtU []    = {91,  90, 10 ,34, 0xE0, 0xE0, 0x06, 0xF9};
+  const int samsungBtL []    = {91,  90, 10 ,34, 0xE0, 0xE0, 0xA6, 0x59};
+  const int samsungBtR []    = {91,  90, 10 ,34, 0xE0, 0xE0, 0x46, 0xB9};
+  const int samsungBtOk[]    = {91,  90, 10, 34, 0xE0, 0xE0, 0x16, 0xE9};
   const int onkyoRcvOnOff[]  = {180, 88, 11, 33, 0x4B, 0x36, 0xD3, 0x2C};
   const int onkyoRcvVolUpR[] = {180, 88, 11, 33, 0x4B, 0xB6, 0x40, 0xBF};
   const int onkyoRcvVolUpL[] = {180, 88, 11, 33, 0x20, 0xDF, 0x40, 0xBF};
@@ -191,9 +210,31 @@ void dispatchInfraRed (int command) {
     case IRC_ONOFF_TV:  sendIrWithParams(samsungTvOnOff);     break;
     case IRC_ONOFF_RCV: sendIrWithParams(onkyoRcvOnOff);      break;
     case IRC_SOURCE:    /* NOP */                             break;
-    case IRC_VOLUP:     sendIrWithParams(onkyoRcvVolUpR);     break;
-    case IRC_VOLDOWN:   sendIrWithParams(onkyoRcvVolDnR);     break;
-  } 
+    case IRC_VOLUP:     sendIrWithParams(samsungVolUp);       break;
+    case IRC_VOLDOWN:   sendIrWithParams(samsungVolDn);       break;
+    case IRC_SETSRC1:
+      sendIrWithParams(samsungBtHome);
+      delay(250);
+      sendIrWithParams(samsungBtU);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtL);
+      delay(160);
+      sendIrWithParams(samsungBtR);
+      delay(160);
+      sendIrWithParams(samsungBtR);
+      delay(160);
+      sendIrWithParams(samsungBtOk);
+    break;
+  }
+
+  for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
+  IR.Init(PIN_IR_RX);
 }
 
 
@@ -242,6 +283,5 @@ void debugIrBuffer() {
   Serial.println();
   Serial.println("+------------------------------------------------------+\r\n\r\n");
 }
-
 
 

@@ -53,11 +53,9 @@
 #define IRC_SOURCE      2
 #define IRC_VOLUP       3
 #define IRC_VOLDOWN     4
-#define IRC_SRC_LEFT    5
-#define IRC_SRC_RIGHT   6
-#define KBM_MUSIC       1
-#define KBM_KODI        2
-#define KBM_EMPTY       3
+#define IRC_VOLMUTE     5
+#define IRC_MENU        6
+#define IRC_BACK        7
 
 // Pin Definitions
 #define PIN_IR_RX       5
@@ -70,16 +68,24 @@
 const int samsungOnOff[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0x40, 0xBF};
 const int samsungVolUp[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xE0, 0x1F};
 const int samsungVolDn[]   = {91,  90, 10, 34, 0xE0, 0xE0, 0xD0, 0x2F};
+const int samsungVolMute[] = {91,  90, 10, 34, 0xE0, 0xE0, 0xF0, 0x0F};
 const int samsungHome[]    = {91,  90, 10 ,34, 0xE0, 0xE0, 0x9E, 0x61};
 const int samsungUp[]      = {91,  90, 10 ,34, 0xE0, 0xE0, 0x06, 0xF9};
+const int samsungDown[]    = {91,  90, 10, 34, 0xE0, 0xE0, 0x86, 0x79};
 const int samsungLeft[]    = {91,  90, 10 ,34, 0xE0, 0xE0, 0xA6, 0x59};
 const int samsungRight[]   = {91,  90, 10 ,34, 0xE0, 0xE0, 0x46, 0xB9};
 const int samsungOk[]      = {91,  90, 10, 34, 0xE0, 0xE0, 0x16, 0xE9};
+const int samsungMenu[]    = {91,  90, 10, 34, 0xE0, 0xE0, 0x9E, 0x61};
+const int samsungBack[]    = {91,  90, 10, 34, 0xE0, 0xE0, 0x1A, 0xE5};
 const int onkyoOnOff[]     = {180, 88, 11, 33, 0x4B, 0x36, 0xD3, 0x2C};
 const int onkyoVolUpR[]    = {180, 88, 11, 33, 0x4B, 0xB6, 0x40, 0xBF};
 const int onkyoVolUpL[]    = {180, 88, 11, 33, 0x20, 0xDF, 0x40, 0xBF};
 const int onkyoVolDnR[]    = {180, 88, 11, 33, 0x4B, 0xB6, 0xC0, 0x3F};
 const int onkyoVolDnL[]    = {180, 88, 11, 33, 0x20, 0xDF, 0xC0, 0x3F};
+
+// Mode switch for switching between TV arrow control
+// and computer arrow + enter + back control
+bool modeSwitchOn = 0;
 
 
 
@@ -161,25 +167,50 @@ int getPhysicalButton () {
 // Virtual Remote representing all buttons
 void pressVirtualButton (int button) {
   switch(button) {
-    case BTN_ONOFF:     dispatchInfraRed(IRC_ONOFF);          break;
-    case BTN_SOURCE:    dispatchInfraRed(IRC_SRC_LEFT);       break;
-    case BTN_MENU:      dispatchInfraRed(IRC_SRC_RIGHT);      break;
-    case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         break;
-    case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       break;
-    case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       break;
-    case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      break;
-    case BTN_ENTER:     Keyboard.write(KEY_RETURN);           break;
-    case BTN_MORE:      Keyboard.write('c');                  break;
-    case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        break;
-    case BTN_VOLUP:     dispatchInfraRed(IRC_VOLUP);          break;
-    case BTN_VOLDOWN:   dispatchInfraRed(IRC_VOLDOWN);        break;
+    case BTN_ONOFF:     sendIrWithParams(samsungOnOff);       break;
+    case BTN_SOURCE:    modeSwitchOn = !modeSwitchOn;         break;
+    case BTN_MENU:      /* NOP */                             break;
+    case BTN_UP:        pressSwitchButton(BTN_UP);            break;
+    case BTN_DOWN:      pressSwitchButton(BTN_DOWN);          break;
+    case BTN_LEFT:      pressSwitchButton(BTN_LEFT);          break;
+    case BTN_RIGHT:     pressSwitchButton(BTN_RIGHT);         break;
+    case BTN_ENTER:     pressSwitchButton(BTN_ENTER);         break;
+    case BTN_MORE:      pressSwitchButton(BTN_MORE);          break;
+    case BTN_BACK:      pressSwitchButton(BTN_BACK);          break;
+    case BTN_VOLUP:     sendIrWithParams(samsungVolUp);       break;
+    case BTN_VOLDOWN:   sendIrWithParams(samsungVolDn);       break;
     case BTN_PLAYPAUSE: Keyboard.write(' ');                  break;
     case BTN_SEEKBW:    Keyboard.write(KEY_LEFT_ARROW);       break;
     case BTN_SEEKFW:    Keyboard.write(KEY_RIGHT_ARROW);      break;
     case BTN_JMPBW:     /* NOP */                             break;
     case BTN_JMPFW:     /* NOP */                             break;
     case BTN_STOP:      /* NOP */                             break;
-    case BTN_MUTE:      /* NOP */                             break;
+    case BTN_MUTE:      sendIrWithParams(samsungVolMute);     break;
+  }
+}
+
+
+void pressSwitchButton(int button) {
+  if(modeSwitchOn == 0) {
+    switch(button) {
+      case BTN_UP:        Keyboard.write(KEY_UP_ARROW);         break;
+      case BTN_DOWN:      Keyboard.write(KEY_DOWN_ARROW);       break;
+      case BTN_LEFT:      Keyboard.write(KEY_LEFT_ARROW);       break;
+      case BTN_RIGHT:     Keyboard.write(KEY_RIGHT_ARROW);      break;
+      case BTN_ENTER:     Keyboard.write(KEY_RETURN);           break;
+      case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        break;
+      case BTN_MORE:      Keyboard.write('c');                  break;
+    }
+  } else {
+    switch(button) {
+      case BTN_UP:        sendIrWithParams(samsungUp);          break;
+      case BTN_DOWN:      sendIrWithParams(samsungDown);        break;
+      case BTN_LEFT:      sendIrWithParams(samsungLeft);        break;
+      case BTN_RIGHT:     sendIrWithParams(samsungRight);       break;
+      case BTN_ENTER:     sendIrWithParams(samsungOk);          break;
+      case BTN_BACK:      sendIrWithParams(samsungBack);        break;
+      case BTN_MORE:      sendIrWithParams(samsungHome);        break;
+    }
   }
 }
 
@@ -198,23 +229,6 @@ bool bufferMatches(int bit1, int bit2, int bit3, int bit4) {
 }
 
 
-// Infrared Dispatcher
-void dispatchInfraRed (int command) {
-
-  switch (command) {
-    case IRC_ONOFF:     sendIrWithParams(samsungOnOff);       break;
-    case IRC_SOURCE:    /* NOP */                             break;
-    case IRC_VOLUP:     sendIrWithParams(samsungVolUp);       break;
-    case IRC_VOLDOWN:   sendIrWithParams(samsungVolDn);       break;
-    case IRC_SRC_LEFT:  /* NOP */                             break;
-    case IRC_SRC_RIGHT: /* NOP */                             break;
-  }
-
-  for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
-  IR.Init(PIN_IR_RX);
-}
-
-
 // Infrared send helper
 void sendIrWithParams(const int* cs) {
   txBuffer[BIT_LEN]        = 9;
@@ -229,6 +243,9 @@ void sendIrWithParams(const int* cs) {
   txBuffer[BIT_DATA+3]     = cs[7];
 
   IR.Send(txBuffer, IR_TX_FRQ);
+
+  for (int i = 0; i < 20; i++) txBuffer[i] = 0x00;
+  IR.Init(PIN_IR_RX);
 }
 
 

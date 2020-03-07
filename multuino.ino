@@ -102,14 +102,14 @@ const int onkyoVolUpR[]    = {180, 88, 11, 33, 0x4B, 0xB6, 0x40, 0xBF};
 const int onkyoVolUpL[]    = {180, 88, 11, 33, 0x20, 0xDF, 0x40, 0xBF};
 const int onkyoVolDnR[]    = {180, 88, 11, 33, 0x4B, 0xB6, 0xC0, 0x3F};
 const int onkyoVolDnL[]    = {180, 88, 11, 33, 0x20, 0xDF, 0xC0, 0x3F};
-const int hmdiOnOff[]      = {181, 89, 11, 33, 0x00, 0xFF, 0x00, 0xFF};
-const int hmdiOne[]        = {181, 89, 11, 33, 0x00, 0xFF, 0x10, 0xEF};
-const int hmdiTwo[]        = {181, 89, 11, 33, 0x00, 0xFF, 0x90, 0x6F};
-const int hmdiThree[]      = {181, 89, 11, 33, 0x00, 0xFF, 0x50, 0xAF};
-const int hmdiFour[]       = {181, 89, 11, 33, 0x00, 0xFF, 0x30, 0xCF};
-const int hmdiFive[]       = {181, 89, 11, 33, 0x00, 0xFF, 0x70, 0x8F};
-const int hmdiLeft[]       = {181, 89, 11, 33, 0x00, 0xFF, 0x28, 0xD7};
-const int hmdiRight[]      = {181, 89, 11, 33, 0x00, 0xFF, 0x68, 0x97};
+const int hdmiOnOff[]      = {182, 90, 11, 33, 0x00, 0xFF, 0x00, 0xFF};
+const int hdmiOne[]        = {182, 90, 11, 33, 0x00, 0xFF, 0x10, 0xEF};
+const int hdmiTwo[]        = {182, 90, 11, 33, 0x00, 0xFF, 0x90, 0x6F};
+const int hdmiThree[]      = {182, 90, 11, 33, 0x00, 0xFF, 0x50, 0xAF};
+const int hdmiFour[]       = {182, 90, 11, 33, 0x00, 0xFF, 0x30, 0xCF};
+const int hdmiFive[]       = {182, 90, 11, 33, 0x00, 0xFF, 0x70, 0x8F};
+const int hdmiLeft[]       = {182, 90, 11, 33, 0x00, 0xFF, 0x28, 0xD7};
+const int hdmiRight[]      = {182, 90, 11, 33, 0x00, 0xFF, 0x68, 0x97};
 
 // Mode switch for switching between TV arrow control
 // and computer arrow + enter + back control
@@ -223,7 +223,7 @@ void pressSwitchButton(int button) {
       case BTN_ENTER:     sendIrWithParams(samsungOk);          break;
       case BTN_BACK:      sendIrWithParams(samsungBack);        break;
       case BTN_MORE:      sendIrWithParams(samsungHome);        break;
-      case BTN_SOURCE:    sendIrWithParams(hmdiRight);          break;
+      case BTN_SOURCE:    sendIrWithParams(hdmiRight);          break;
     }
   }
 }

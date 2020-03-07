@@ -213,6 +213,7 @@ void pressSwitchButton(int button) {
       case BTN_ENTER:     Keyboard.write(KEY_RETURN);           break;
       case BTN_BACK:      Keyboard.write(KEY_BACKSPACE);        break;
       case BTN_MORE:      Keyboard.write('c');                  break;
+      case BTN_SOURCE:    sendIrWithParams(hdmiRight);          break;
     }
   } else {
     switch(button) {

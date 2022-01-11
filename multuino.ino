@@ -200,6 +200,7 @@ void pressVirtualButton (int button) {
     case BTN_JMPFW:     /* NOP */                             break;
     case BTN_STOP:      /* NOP */                             break;
     case BTN_MUTE:      sendIrWithParams(samsungVolMute);     break;
+    default:            /* NOP */                             break;
   }
 }
 

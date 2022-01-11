@@ -128,7 +128,7 @@ void setup() {
 }
 
 void loop() {
-  int pressedButton;
+  int pressedButton = BTN_UNKNOWN;
 
   if(IR.IsDta()) {
     IR.Recv(rxBuffer);
